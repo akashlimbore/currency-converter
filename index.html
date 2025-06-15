@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Currency Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        #currencyList {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        .currency-card {
+            transition: transform 0.3s;
+        }
+        .currency-card:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-blue-600 text-white py-6">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold">World Currency Hub</h1>
+            <p class="mt-2">Explore and convert all world currencies with real-time exchange rates</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Currency Converter Section -->
+        <section class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Currency Converter</h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
+                    <input type="number" id="amount" value="1" class="mt-1 p-2 w-full border rounded-md">
+                </div>
+                <div class="flex-1">
+                    <label for="fromCurrency" class="block text-sm font-medium text-gray-700">From</label>
+                    <select id="fromCurrency" class="mt-1 p-2 w-full border rounded-md">
+                        <option value="USD">USD - United States Dollar</option>
+                        <option value="EUR">EUR - Euro</option>
+                        <option value="KWD">KWD - Kuwaiti Dinar</option>
+                        <option value="BHD">BHD - Bahraini Dinar</option>
+                        <option value="GBP">GBP - British Pound</option>
+                        <option value="CHF">CHF - Swiss Franc</option>
+                        <!-- Add more currencies dynamically -->
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label for="toCurrency" class="block text-sm font-medium text-gray-700">To</label>
+                    <select id="toCurrency" class="mt-1 p-2 w-full border rounded-md">
+                        <option value="USD">USD - United States Dollar</option>
+                        <option value="EUR">EUR - Euro</option>
+                        <option value="KWD">KWD - Kuwaiti Dinar</option>
+                        <option value="BHD">BHD - Bahraini Dinar</option>
+                        <option value="GBP">GBP - British Pound</option>
+                        <option value="CHF">CHF - Swiss Franc</option>
+                        <!-- Add more currencies dynamically -->
+                    </select>
+                </div>
+            </div>
+            <button onclick="convertCurrency()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Convert</button>
+            <p id="conversionResult" class="mt-4 text-lg font-medium"></p>
+        </section>
+
+        <!-- Currency List Section -->
+        <section>
+            <h2 class="text-2xl font-semibold mb-4">All World Currencies</h2>
+            <div id="currencyList" class="currency-list"></div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto px-4 text-center">
+            <p>&copy; 2025 World Currency Hub. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Sample currency data (replace with API call in production)
+        const currencies = [
+            { code: "USD", name: "United States Dollar", country: "United States", symbol: "$", rate: 1.0 },
+            { code: "EUR", name: "Euro", country: "Eurozone", symbol: "€", rate: 0.806942 },
+            { code: "KWD", name: "Kuwaiti Dinar", country: "Kuwait", symbol: "د.ك", rate: 0.305 },
+            { code: "BHD", name: "Bahraini Dinar", country: "Bahrain", symbol: "ب.د", rate: 0.376 },
+            { code: "GBP", name: "British Pound", country: "United Kingdom", symbol: "£", rate: 0.719154 },
+            { code: "CHF", name: "Swiss Franc", country: "Switzerland", symbol: "Fr", rate: 0.933058 }
+            // Add more currencies as needed
+        ];
+
+        // Populate currency dropdowns
+        function populateCurrencies() {
+            const fromSelect = document.getElementById('fromCurrency');
+            const toSelect = document.getElementById('toCurrency');
+            currencies.forEach(currency => {
+                const option = `<option value="${currency.code}">${currency.code} - ${currency.name}</option>`;
+                fromSelect.innerHTML += option;
+                toSelect.innerHTML += option;
+            });
+        }
+
+        // Populate currency list
+        function populateCurrencyList() {
+            const list = document.getElementById('currencyList');
+            currencies.forEach(currency => {
+                const card = `
+                    <div class="currency-card bg-white p-4 rounded-lg shadow-md">
+                        <h3 class="text-lg font-semibold">${currency.name} (${currency.code})</h3>
+                        <p><strong>Country:</strong> ${currency.country}</p>
+                        <p><strong>Symbol:</strong> ${currency.symbol}</p>
+                        <p><strong>Exchange Rate (to USD):</strong> ${currency.rate}</p>
+                    </div>`;
+                list.innerHTML += card;
+            });
+        }
+
+        // Currency conversion
+        function convertCurrency() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            const toCurrency = document.getElementById('toCurrency').value;
+            const resultElement = document.getElementById('conversionResult');
+
+            if (isNaN(amount) || amount <= 0) {
+                resultElement.textContent = "Please enter a valid amount.";
+                return;
+            }
+
+            const fromRate = currencies.find(c => c.code === fromCurrency).rate;
+            const toRate = currencies.find(c => c.code === toCurrency).rate;
+            const convertedAmount = (amount / fromRate) * toRate;
+
+            resultElement.textContent = `${amount} ${fromCurrency} = ${convertedAmount.toFixed(2)} ${toCurrency}`;
+        }
+
+        // Initialize
+        populateCurrencies();
+        populateCurrencyList();
+    </script>
+</body>
+</html>
